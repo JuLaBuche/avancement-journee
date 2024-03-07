@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avancement de la Journée</title>
+    <link rel="icon" href="votre_icone.ico" type="image/x-icon">
+    <!-- Ajouter le style pour les confettis -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff; /* Utilisation de #ffffff pour la couleur du texte principal (blanc) */
+            text-align: center; /* Centrer le texte */
+        }
+
+        .background {
+            background-image: url('strasbourg.jpg'); /* Remplacez 'strasbourg.jpg' par le chemin de votre image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Pour placer l'arrière-plan derrière le contenu */
+            filter: blur(3px); /* Appliquer un flou de 5 pixels à l'image de fond */
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6); /* Opacité de l'arrière-plan sombre */
+            z-index: -1; /* Pour placer l'overlay derrière le contenu */
+        }
+
+        h1 {
+            color: #ffffff; /* Utilisation de #ffffff pour la couleur du titre principal (blanc) */
+            margin-bottom: 20px;
+        }
+
+        #progress-container {
+            width: 50%;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(128, 128, 128, 0.8); /* Couleur grise avec 80% d'opacité pour l'arrière-plan de l'encart */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1; /* Pour placer l'encart au-dessus de l'overlay */
+        }
+
+        #progress-bar-container {
+            position: relative;
+        }
+
+       #progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 30px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #4caf50 20%, #8aff80 50%, #4caf50 80%); /* Dégradé linéaire plus doux */
+    background-size: 200% 100%; /* Doublez la taille pour la transition */
+    width: 100%;
+    animation: fillProgress 15s linear infinite; /* Animation plus lente avec un dégradé doux */
+}
+
+@keyframes fillProgress {
+    0% {
+        background-position: 200% 0; /* À 0% de l'animation, déplacez le dégradé à gauche */
+    }
+    100% {
+        background-position: -200% 0; /* À 100% de l'animation, déplacez le dégradé à droite */
+    }
+}
+
+#progress-bar-full {
+    width: 100%;
+    height: 30px;
+    border-radius: 5px;
+    background-color: #ddd; /* Couleur de la barre complète */
+}
+
+        #progress-text {
+            margin-top: 10px;
+            font-size: 36px; /* Taille de police plus grande pour le pourcentage */
+            color: #ffffff; /* Utilisation de #ffffff pour la couleur du texte du pourcentage (blanc) */
+        }
+
+        #current-time {
+            margin-top: 10px;
+            font-size: 24px; /* Taille de police plus grande pour l'heure actuelle */
+            color: #ffffff; /* Utilisation de #ffffff pour la couleur du texte de l'heure actuelle (blanc) */
+        }
+        
+        #current-date {
+            margin-top: 10px;
+            font-size: 18px; /* Taille de police pour la date */
+            color: #ffffff; /* Couleur du texte de la date (blanc) */
+        }
+
+        img {
+            width: 100px;
+            height: auto;
+            margin-top: 10px;
+        }
+
+        /* Ajouter le style pour les confettis */
+        #confetti-canvas {
+            position: fixed;
+            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="overlay"></div>
+
+    <div id="progress-container">
+        <h1>Avancement de la Journée</h1>
+        <div id="progress-bar-container">
+            <div id="progress-bar-full"></div>
+            <div id="progress-bar"></div>
+        </div>
+        <p id="progress-text">Calcul en cours...</p>
+        <!-- Afficher la date et l'heure côte à côte -->
+        <p id="current-date-time"></p>
+	<img id="current-image" src="logo.jpg" alt="Image supplémentaire">
+    </div>    
+
+    <!-- Ajouter le script de confettis -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // Début de journée à 8h10
+        var startHour = 8;
+        var startMinute = 10;
+
+        // Fin de journée à 16h40
+        var endHour = 16;
+        var endMinute = 40;
+
+        function calculatePercentage() {
+            var now = new Date();
+            var startTime = new Date();
+            var endTime = new Date();
+
+            startTime.setHours(startHour, startMinute, 0, 0);
+            endTime.setHours(endHour, endMinute, 0, 0);
+
+            var totalMilliseconds = endTime - startTime;
+            var elapsedMilliseconds = now - startTime;
+
+            var percentage = (elapsedMilliseconds / totalMilliseconds) * 100;
+            return Math.min(100, Math.max(0, percentage)).toFixed(3);
+        }
+
+        function updateProgress() {
+            var percentage = calculatePercentage();
+            var progressBar = document.getElementById("progress-bar");
+            var progressText = document.getElementById("progress-text");
+            var currentDateText = document.getElementById("current-date");
+            var currentTimeText = document.getElementById("current-time");
+
+            progressBar.style.width = percentage + "%";
+            progressText.innerText = percentage + "%";
+
+            // Afficher la date et l'heure actuelle
+            var now = new Date();
+            var currentDateTime = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                + ' - ' +
+                now.toLocaleTimeString('fr-FR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById("current-date-time").innerText = currentDateTime;
+
+            // Mettre à jour le titre de la page avec le pourcentage
+            document.title = percentage + "%" + " - Avancement de la Journée";
+
+            // Si la progression atteint 100%, célébrer avec des confettis
+            if (percentage == 100) {
+                celebrateConfetti();
+            }
+        }
+
+        function celebrateConfetti() {
+            // appeler la fonction confetti
+            confetti();
+        }
+
+        // Mettre à jour toutes les millisecondes
+        setInterval(updateProgress, 1);
+
+        // Mettre à jour immédiatement au chargement de la page
+        updateProgress();
+    </script>
+
+</body>
+</html>
